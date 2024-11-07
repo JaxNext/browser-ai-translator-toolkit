@@ -53,3 +53,5 @@ export async function translate({ text, sourceLanguage, targetLanguage }) {
 export async function updateTranslator({ sourceLanguage, targetLanguage }) {
   translator = await genTranslator({ sourceLanguage, targetLanguage })
 }
+
+export const checkTranslatorUsability = checkUsability

@@ -44,3 +44,5 @@ export async function detect(text) {
     value: lang,
   }
 }
+
+export const checkDetectorUsability = checkUsability
