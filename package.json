@@ -1,6 +1,6 @@
 {
   "name": "@rejax/browser-ai-translator",
-  "version": "0.0.2",
+  "version": "0.1.3",
   "description": "Toolkit of browser built-in Translation API.",
   "main": "index.js",
   "types": "index.d.ts",

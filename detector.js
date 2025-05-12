@@ -1,43 +1,32 @@
 let detector = null
-async function checkUsability() {
-  let obj = {
+async function checkAvailability() {
+  const obj = {
     available: false,
-    apiPath: '',
-    createFuncName: '',
+    message: '',
   }
-  if (ai?.languageDetector?.capabilities) {
-    const res = await ai.languageDetector?.capabilities()
-    obj.available = res?.available === 'readily'
-    obj.apiPath = ['ai', 'languageDetector']
-    obj.createFuncName = 'create'
-    console.log('ai.languageDetector', res)
-  } else if (translation?.canDetect) {
-    const res = await translation.canDetect()
-    obj.available = res === 'readily'
-    obj.apiPath = ['translation']
-    obj.createFuncName = 'createDetector'
-    console.log('translation', res)
+  const res = await self?.LanguageDetector?.availability?.()
+  if (res === 'unavailable') {
+    obj.message = '当前浏览器不支持，请升级到最新版本或检查配置'
+  } else if (res !== 'available') {
+    obj.message = '模型加载中，请稍后再试试'
+  } else {
+    obj.available = true
   }
   return obj
 }
-async function genDetector() {
-  const { available, apiPath, createFuncName } = await checkUsability()
-  if (!available) throw new Error(`当前浏览器不支持 ${apiPath} 语言检测`)
-  let apiRoot = window
-  for (let i = 0; i < apiPath.length; i++) {
-    const path = apiPath[i]
-    apiRoot = apiRoot[path]
-  }
-  return await apiRoot[createFuncName]()
+export async function genDetector() {
+  const obj = await checkAvailability()
+  if (!obj.available) throw new Error(obj.message)
+  return await self.LanguageDetector.create()
 }
 export async function detect(text) {
   detector = detector || (await genDetector())
 
   const result = await detector.detect(text)
-  const defaultLang = 'en'
-  if (!result?.length) return defaultLang
+  const defaultStr = 'unknown'
+  if (!result?.length) return defaultStr
   const mostLikely = result.sort((a, b) => b.confidence - a.confidence)[0]
-  const lang = mostLikely?.detectedLanguage || defaultLang
+  const lang = mostLikely?.detectedLanguage || defaultStr
 
   return {
     text: lang,
@@ -45,4 +34,4 @@ export async function detect(text) {
   }
 }
 
-export const checkDetectorUsability = checkUsability
+export const checkDetectorAvailability = checkAvailability
